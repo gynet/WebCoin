@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import { Blockchain } from './blockchain'
 import uuid from 'uuid'
 import axios from 'axios'
+import path from 'path'
 
 const nodeAddress = uuid().split('-').join('');
 const bitcoin = new Blockchain();
@@ -163,16 +164,28 @@ app.get('/consensus', async (req, res) => {
     }
 });
 
-app.get('/block/:blockHash', () => {
-
+app.get('/block/:blockHash', (req, res) => {
+    const blockHash = req.params.blockHash;
+    const correctBlock = bitcoin.getBlock(blockHash);   
+    res.json({ block: correctBlock});
 });
 
-app.get('', () => {
-
+app.get('/transaction/:transactionId', (req, res) => {
+    const transactionId = req.params.transactionId;
+    res.json(bitcoin.getTransaction(transactionId));
 });
 
-app.get('', () => {
+app.get('/address/:address', (req, res) => {
+    const address = req.params.address;
+    const addressData = bitcoin.getAddressData(address);
+    res.json({
+        addressData: addressData
+    });
+});
 
+app.get('/block-explorer', (req, res) => {
+    const htmlPath = path.join(__dirname, './block-explorer/index.html')
+    res.sendFile(htmlPath);
 });
 
 app.listen(port, () => {

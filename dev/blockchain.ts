@@ -94,10 +94,50 @@ class Blockchain {
         return true;
      }
 
-
      getBlock = (blockHash: string) => {
-
+        for (const block of this.chain) {
+            if (block.hash === blockHash) return block;
+        }
+        return null;
      } 
+
+     getTransaction = (transactionId: string) => {
+        for (const block of this.chain) {
+            for (const transaction of block.transactions) {
+                if (transaction.transactionId === transactionId) {
+                    return {
+                        block: block,
+                        transaction: transaction
+                    };
+                }
+            }
+        }
+        return null;
+     } 
+
+     getAddressData = (address: string) => {
+         const addressTransactions = [];
+         for (const block of this.chain) {
+             for (const transaction of block.transactions) {
+                if (transaction.sender === address || transaction.recipient === address) {
+                    addressTransactions.push(transaction);
+                }
+             }
+         }
+         let balance = 0;
+         for (const transaction of addressTransactions) {
+            if (transaction.recipient == address) {
+                balance += transaction.amount;
+            }
+            else if (transaction.sender == address) {
+                balance -= transaction.amount;
+            }
+         }
+         return {
+             addressTransactions: addressTransactions,
+             adressBalance: balance
+         }
+     }
 }
 
 export { Blockchain }
